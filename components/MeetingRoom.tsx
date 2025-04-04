@@ -69,7 +69,7 @@ const MeetingRoom = () => {
 
         <DropdownMenu>
           <div className="flex items-center">
-            <DropdownMenuTrigger className="cursor-pointer rounded-2xl bg-[#19232d] px-4 py-2 hover:bg-[#4c535b]  ">
+            <DropdownMenuTrigger className="cursor-pointer rounded-2xl bg-[#19232d] px-4 py-2 hover:bg-[#4c535b]">
               <LayoutList size={20} className="text-white" />
             </DropdownMenuTrigger>
           </div>

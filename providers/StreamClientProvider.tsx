@@ -24,6 +24,8 @@ const StreamVideoProvider = ({ children }: { children: ReactNode }) => {
         if (!isLoaded || !user) return;
         if (!API_KEY) throw new Error('Stream API key is missing');
 
+        console.log('Initializing Stream client with API key:', API_KEY);
+
         // Create client with specific configuration
         const client = new StreamVideoClient({
           apiKey: API_KEY,
@@ -33,11 +35,17 @@ const StreamVideoProvider = ({ children }: { children: ReactNode }) => {
             image: user?.imageUrl,
           },
           tokenProvider,
+          options: {
+            logLevel: 'debug', // Enable debug logging
+            baseURL: 'https://video.stream-io-api.com', // Explicitly set base URL
+            timeout: 10000, // Increase timeout to 10 seconds
+          },
         });
 
         // Function to attempt connection with retries
         const connectWithRetries = async (retries = 0): Promise<void> => {
           try {
+            console.log(`Attempting connection (attempt ${retries + 1}/${MAX_RETRIES})`);
             await client.connectUser({ 
               id: user.id,
               name: user?.username || user?.id,
@@ -53,7 +61,7 @@ const StreamVideoProvider = ({ children }: { children: ReactNode }) => {
               await new Promise(resolve => setTimeout(resolve, RETRY_DELAY));
               await connectWithRetries(retries + 1);
             } else {
-              throw new Error(`Failed to connect after ${MAX_RETRIES} attempts`);
+              throw new Error(`Failed to connect after ${MAX_RETRIES} attempts: ${err instanceof Error ? err.message : 'Unknown error'}`);
             }
           }
         };
@@ -70,6 +78,7 @@ const StreamVideoProvider = ({ children }: { children: ReactNode }) => {
     // Cleanup function
     return () => {
       if (videoClient) {
+        console.log('Disconnecting Stream client');
         videoClient.disconnectUser();
       }
     };
